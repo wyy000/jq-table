@@ -15,166 +15,166 @@
       display: flex;
       flex-direction: column;
     }
-    .table_box {
+    #table_box {
       flex: 1;
       width: 100%;
       overflow: auto;
     }
+
     .history_table {
       width: 100%;
       border-collapse: collapse;
     }
-    .table_footer {
-      display: flex;
-      color: #789fd8;
-      line-height: 32px;
-      background-color: lightblue;
-      cursor: pointer;
-    }
-    .table_footer span {
-      display: flex;
-      margin-right: 10px;
-      align-items: center;
-    }
-    .table_footer span:first-child {
-      flex: 1;
-      margin-right: 0;
-    }
-
-    #history_tbody tr {
+    .history_table tr {
       display: flex;
     }
-    #history_tbody tr:nth-child(even) {
+    .history_table tr:nth-child(even) {
       background-color: #eee;
     }
-    #history_tbody tr td {
+    .history_table tr td {
       padding-left: 6px;
       padding-right: 6px;
     }
-    #history_tbody tr td:first-child {
+    .history_table tr td:first-child {
       display: flex;
       align-items: center;
+      color: #c5d4f1;
     }
-    #history_tbody tr td:nth-child(2) {
+    .history_table tr[data-type="event"] td:first-child {
+      color: #ee9d9d;
+    }
+    .history_table tr td:nth-child(2) {
       position: relative;
       margin-right: 8px;
       line-height: 18px;
       z-index: 0;
     }
-    #history_tbody tr td:nth-child(2)::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 8px;
-      width: 1px;
-      background-color: #ddd;
-      z-index: -1;
+    .history_table tr td:nth-child(2)::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 8px;
+        width: 1px;
+        background-color: #ddd;
+        z-index: -1;
     }
-    #history_tbody tr td:last-child {
+    .history_table .time_line span {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    .history_table .time_line div {
+        display: flex;
+        align-items: center;
+    }
+    .history_table tr[data-type="page"] .time_line div {
+        color: #c5d4f1;
+    }
+    .history_table tr[data-type="event"] .time_line div {
+        color: #ee9d9d;
+    }
+    .history_table tr td:last-child {
       flex: 1;
       padding-right: 0;
       line-height: 32px;
     }
 
-    .time_line {
-      text-align: center;
+    .table_footer {
+        display: flex;
     }
-    .time_line span {
-      padding-left: 16px;
-      padding-right: 16px;
+    .table_footer button {
+        display: flex;
+        align-items: center;
+        padding-bottom: 0;
+        border: none;
+        color: #789fd8;
+        line-height: 32px;
+        cursor: pointer;
+        background-color: lightblue;
     }
-    .time_line div {
-      display: flex;
-      align-items: center;
+    .table_footer button:focus {
+        outline: none;
     }
-
-    .page_theme {
-      color: #c5d4f1;
-    }
-    .event_theme {
-      color: #ee9d9d;
+    .table_footer button:first-child {
+        flex: 1;
     }
   </style>
 </head>
 
 <body>
   <div class="history_box">
-    <div class="table_box">
-      <table class="history_table">
-        <tbody id="history_tbody"></tbody>
-      </table>
-    </div>
+    <div id="table_box"></div>
     <div class="table_footer" id="filterBtn">
-      <span id="filterAll"></span>
-      <span id="filterPage" data-type="page">
+      <button></button>
+      <button data-type="page">
         <svg fill="none" viewBox="0 0 24 24" width="20" height="20">
           <path fill="none" d="M0 0h24v24H0z"/>
           <path fill="currentColor" d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm17 8H4v8h16v-8zm0-2V5H4v4h16zm-5-3h4v2h-4V6z"/>
         </svg>
         页面
-      </span>
-      <span id="filterEvent" data-type="event">
+      </button>
+      <button data-type="event">
         <svg fill="none" viewBox="0 0 24 24" width="20" height="20">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
         </svg>
         事件
-      </span>
+      </button>
     </div>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
   <script>
     const res = {
       "total": 30,
-      "data": Array.from({length: 30}, (it, idx) => {
+      "data": Array.from({length: 30}, function(it) {
         return {
-          "street": '22:34:00',
-          "city": "江苏苏州",
+          "time": '22:34:00',
+          "content": "江苏苏州",
           "type": parseInt(Math.random() * 10) % 3 === 0 ? "page" : "event"
         }
       })
     }
 
-    render(res.data)
+    render($('#table_box'), res.data)
     filterListInit()
 
     function filterListInit () {
-      $('#filterBtn').on('click', 'span', e => {
-        let data = res.data.filter(it => !$(e.target).data('type') || it.type === $(e.target).data('type'))
-        render(data)
+      $('#filterBtn').on('click', 'button', function(e) {
+        let data = res.data.filter(function(it) {
+          return !$(e.currentTarget).data('type') || it.type === $(e.currentTarget).data('type')
+        })
+        render($('#table_box'), data)
       })
     }
 
-    function render (data) {
+    function render (el, data) {
       let tbody = ''
       if (data.length > 0) {
-        data.forEach((it, idx) => {
+        data.forEach(function(it, idx) {
           tbody += `<tr data-type="${it.type === 'page' ? 'page' : 'event'}">
             <td>
-              <svg fill="none" viewBox="0 0 24 24" width="20" height="20" class=${it.type === 'page' ? 'page_theme' : 'event_theme'}>
+              <svg fill="none" viewBox="0 0 24 24" width="20" height="20">
                 ${it.type === 'page'
-                  ? '<path fill="none" d="M0 0h24v24H0z"/>' +
-                    '<path fill="currentColor" d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm17 8H4v8h16v-8zm0-2V5H4v4h16zm-5-3h4v2h-4V6z"/>'
+                  ? '<path fill="currentColor" d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm17 8H4v8h16v-8zm0-2V5H4v4h16zm-5-3h4v2h-4V6z"/>'
                   : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />'}
               </svg>
             </td>
             <td>
               <div class="time_line">
-                <span>${it.street}</span>
-                <div class=${it.type === 'page' ? 'page_theme' : 'event_theme'}>
+                <span>${it.time}</span>
+                <div class="time_underline">
                   <svg viewBox="0 0 2 2" fill="currentColor" width="5" height="5"><circle r="1" cx="1" cy="1" /></svg>
                   <svg fill="currentColor" width="1" height="1" style="flex: 1;"><rect x="0" y="0" width="1" height="1" style="width:100%;" /></svg>
                   <svg viewBox="0 0 2 2" fill="currentColor" width="5" height="5"><circle r="1" cx="1" cy="1" /></svg>
                 </div>
               </div>
-             </td>
-            <td>${it.city}</td>
+            </td>
+            <td>${it.content}</td>
           </tr>`
         })
       }
-      $('#history_tbody').html(tbody)
+      el.html('<table class="history_table">' + tbody + '</table>')
     }
   </script>
 </body>
