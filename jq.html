@@ -7,7 +7,6 @@
   <style>
     .history_box {
       margin: auto;
-      width: 300px;
       height: 600px;
       font-size: 12px;
       overflow: hidden;
@@ -35,14 +34,15 @@
     .history_table tr td {
       height: 100%;
       padding: 0 6px;
+      white-space: nowrap;
     }
     .history_table tr td:first-child {
       display: flex;
       align-items: center;
-      color: #c5d4f1;
-    }
-    .history_table tr[data-type="event"] td:first-child {
       color: #ee9d9d;
+    }
+    .history_table tr[data-type="page_info"] td:first-child {
+      color: #c5d4f1;
     }
     .history_table tr td:nth-child(2) {
       position: relative;
@@ -70,12 +70,10 @@
     .history_table .time_line div {
       display: flex;
       align-items: center;
-    }
-    .history_table tr[data-type="page"] .time_line div {
-      color: #c5d4f1;
-    }
-    .history_table tr[data-type="event"] .time_line div {
       color: #ee9d9d;
+    }
+    .history_table tr[data-type="page_info"] .time_line div {
+      color: #c5d4f1;
     }
     .history_table tr td:last-child {
       flex: 1;
@@ -110,18 +108,25 @@
   <div id="table_box"></div>
   <div class="table_footer" id="filterBtn">
     <button></button>
-    <button data-type="page">
+    <button data-type="page_info">
       <svg fill="none" viewBox="0 0 24 24" width="20" height="20">
         <path fill="none" d="M0 0h24v24H0z" />
         <path fill="currentColor" d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm17 8H4v8h16v-8zm0-2V5H4v4h16zm-5-3h4v2h-4V6z" />
       </svg>
       页面
     </button>
-    <button data-type="event">
+    <button data-type="custom">
       <svg fill="none" viewBox="0 0 24 24" width="20" height="20">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
       </svg>
-      事件
+      普通事件
+    </button>
+    <button data-type="ekv">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="24" height="20">
+        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+        <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+      </svg>
+      业务事件
     </button>
   </div>
 </div>
@@ -136,10 +141,15 @@
   }
 
   for (let i = 0; i <= 30; i++) {
+    let contents = ['首页', '手势密码解锁']
+    const ekvs = ['购买产品， 产品为【天天利2号】', '购买失败， 产品为【天天利2号】，失败编码为【ERROR01】', '购买成功， 产品为【天天利2号】，购买金额为【10000】']
+    let events = ['page_info', 'custom', 'ekv']
+    let type = parseInt(Math.random() * 10) % 3
+
     res.data.push({
       time: '22:34:00',
-      content: '江苏苏州',
-      type: parseInt(Math.random() * 10) % 3 === 0 ? 'page' : 'event',
+      content: type === 2 ? ekvs[parseInt(Math.random() * 3)] : contents[type],
+      type: events[type],
     })
   }
 
@@ -157,15 +167,18 @@
 
   function render (el, data) {
     let tbody = ''
-    let pageIcon = '<path fill="currentColor" d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm17 8H4v8h16v-8zm0-2V5H4v4h16zm-5-3h4v2h-4V6z"/>'
-    let eventIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />'
+    let icons = {
+      page_info: '<path fill="currentColor" d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm17 8H4v8h16v-8zm0-2V5H4v4h16zm-5-3h4v2h-4V6z"/>',
+      custom: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />',
+      ekv: '<path fill="currentColor" d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" /><path fill="currentColor" fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />',
+    }
 
     if (data.length > 0) {
       data.forEach(function (it, idx) {
-        tbody += '<tr data-type="' + (it.type === 'page' ? 'page' : 'event') + '">\n' +
+        tbody += '<tr data-type="' + it.type + '">\n' +
           '  <td>\n' +
-          '    <svg fill="none" viewBox="0 0 24 24" width="20" height="20">\n' +
-          (it.type === 'page' ? pageIcon : eventIcon) +
+          '    <svg fill="none" viewBox="' + (it.type === "ekv" ? "0 0 20 20" : "0 0 24 24") + '" width="20" height="20">\n' +
+          icons[it.type] +
           '    </svg>\n' +
           '  </td>\n' +
           '  <td>\n' +
